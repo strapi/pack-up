@@ -13,7 +13,7 @@ concurrency:
 jobs:
   lint-build:
     name: 'lint & build'
-    runs-on: mac-os
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v3
@@ -38,7 +38,7 @@ jobs:
   test-unit:
     needs: 'lint-build'
     name: 'test:unit (${{ matrix.node }})'
-    runs-on: mac-os
+    runs-on: ubuntu-latest
     strategy:
       # A test failing on windows doesn't mean it'll fail on macos. It's useful to let all tests run to its completion to get the full picture
       fail-fast: false
