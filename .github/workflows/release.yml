@@ -14,6 +14,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v3
+      - name: Setup npmrc
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
       - uses: actions/setup-node@v4
         with:
           cache: pnpm
@@ -21,8 +23,6 @@ jobs:
       - run: corepack enable && pnpm --version
       - run: pnpm install
       - run: pnpm build
-      - name: Setup npmrc
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
