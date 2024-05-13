@@ -43,7 +43,9 @@
   "module": "./dist/index.mjs",
   "source": "./src/index.ts",
   "types": "./dist/index.d.ts",
-  "bin": "./bin/pack-up.js",
+  "bin": {
+    "pack-up": "./bin/pack-up.js"
+  },
   "files": [
     "bin",
     "dist"
