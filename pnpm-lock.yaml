@@ -88,8 +88,8 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1(@babel/core@7.24.4)(prettier@2.8.8)(typescript@5.4.4)
       '@strapi/pack-up':
-        specifier: 5.0.0
-        version: 5.0.0(@types/node@20.12.6)
+        specifier: workspace:*
+        version: 'link:'
       '@swc/core':
         specifier: ^1.4.13
         version: 1.4.13
@@ -837,11 +837,6 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
-
-  '@strapi/pack-up@5.0.0':
-    resolution: {integrity: sha512-XN00SUwiR/rFTXxA3TMyuPt6SN4r6vuhUtx3y2D0NTzgVToNi++MyspPQ/jHbolHhQxUWnet6X/2JRprtE/YpQ==}
-    engines: {node: '>=18.0.0 <=20.x.x', npm: '>=6.0.0'}
-    hasBin: true
 
   '@swc/core-darwin-arm64@1.4.13':
     resolution: {integrity: sha512-36P72FLpm5iq85IvoEjBvi22DiqkkEIanJ1M0E8bkxcFHUbjBrYfPY9T6cpPyK5oQqkaTBvNAc3j1BlVD6IH6w==}
@@ -4816,40 +4811,6 @@ snapshots:
       - eslint-import-resolver-webpack
       - prettier
       - supports-color
-
-  '@strapi/pack-up@5.0.0(@types/node@20.12.6)':
-    dependencies:
-      '@vitejs/plugin-react-swc': 3.6.0(vite@5.2.8(@types/node@20.12.6))
-      boxen: 5.1.2
-      browserslist-to-esbuild: 1.2.0
-      chalk: 4.1.2
-      chokidar: 3.6.0
-      commander: 8.3.0
-      esbuild: 0.20.2
-      esbuild-register: 3.5.0(esbuild@0.20.2)
-      get-latest-version: 5.1.0
-      git-url-parse: 13.1.1
-      ini: 4.1.2
-      ora: 5.4.1
-      outdent: 0.8.0
-      pkg-up: 3.1.0
-      prettier: 2.8.8
-      prettier-plugin-packagejson: 2.4.14(prettier@2.8.8)
-      prompts: 2.4.2
-      rxjs: 7.8.1
-      typescript: 5.4.4
-      vite: 5.2.8(@types/node@20.12.6)
-      yup: 0.32.9
-    transitivePeerDependencies:
-      - '@swc/helpers'
-      - '@types/node'
-      - less
-      - lightningcss
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
 
   '@swc/core-darwin-arm64@1.4.13':
     optional: true
