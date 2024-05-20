@@ -4,5 +4,8 @@
   "initialVersions": {
     "@strapi/pack-up": "5.0.0"
   },
-  "changesets": ["four-games-camp"]
+  "changesets": [
+    "four-games-camp",
+    "red-frogs-cry"
+  ]
 }
