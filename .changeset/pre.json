@@ -4,5 +4,7 @@
   "initialVersions": {
     "@strapi/pack-up": "5.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "four-games-camp"
+  ]
 }
