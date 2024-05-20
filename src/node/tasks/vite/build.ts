@@ -69,8 +69,6 @@ const viteBuildTask: TaskHandler<ViteBuildTask> = {
     if (isError(err)) {
       ctx.logger.error(err.message);
     }
-
-    process.exit(1);
   },
 };
 

@@ -148,18 +148,15 @@ const build = async (opts: BuildOptions = {}) => {
 
     handler.print(ctx, task);
 
-    const result$ = handler.run$(ctx, task);
+    try {
+      const result = await handler.run$(ctx, task).toPromise();
 
-    result$.subscribe({
-      complete() {
-        handler.success(ctx, task);
-      },
-      error(err) {
-        handler.fail(ctx, task, err);
-        // exit as soon as one task fails
-        process.exit(1);
-      },
-    });
+      handler.success(ctx, task, result);
+    } catch (err) {
+      handler.fail(ctx, task, err);
+      // exit as soon as one task fails
+      throw err;
+    }
   }
 };
 
