@@ -61,7 +61,7 @@
     "prettier:write": "prettier --write .",
     "release:add": "changeset add",
     "release:publish": "changeset publish",
-    "release:version": "changeset version && pnpm install",
+    "release:version": "changeset version",
     "test:ts": "tsc --noEmit",
     "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "watch": "node -r esbuild-register scripts/watch"
