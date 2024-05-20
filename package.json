@@ -95,7 +95,7 @@
     "@commitlint/cli": "^19.2.1",
     "@commitlint/config-conventional": "^19.1.0",
     "@strapi/eslint-config": "^0.2.1",
-    "@strapi/pack-up": "5.0.1-alpha.0",
+    "@strapi/pack-up": "workspace:*",
     "@swc/core": "^1.4.13",
     "@swc/jest": "^0.2.36",
     "@types/git-url-parse": "9.0.3",
