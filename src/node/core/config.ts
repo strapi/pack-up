@@ -124,7 +124,7 @@ type ConfigProperty<T> = T | ConfigPropertyResolver<T>;
 
 /** @internal */
 export function resolveConfigProperty<T>(prop: ConfigProperty<T> | undefined, initialValue: T): T {
-  if (!prop) {
+  if (prop === undefined || prop === null) {
     return initialValue;
   }
 
