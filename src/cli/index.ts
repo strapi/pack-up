@@ -17,8 +17,8 @@ command('check').action(async (options) => {
 });
 
 command('build')
-  .option('--sourcemap', 'produce sourcemaps', true)
-  .option('--minify', 'minify the output', false)
+  .option('--sourcemap', 'produce sourcemaps') // Default true, as set in the vite config
+  .option('--minify', 'minify the output') // Default false, as set in the vite config
   .action(async (options) => {
     const { build } = await import('./commands/build');
 
