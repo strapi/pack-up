@@ -7,7 +7,7 @@ import pkgUp from 'pkg-up';
 import type { Export } from './exports';
 import type { Logger } from './logger';
 import type { Runtime } from '../createBuildContext';
-import type { PluginOption } from 'vite';
+import type { InlineConfig, PluginOption } from 'vite';
 
 interface LoadConfigOptions {
   cwd: string;
@@ -107,6 +107,12 @@ interface ConfigOptions {
    * @default tsconfig.build.json
    */
   tsconfig?: string;
+
+  /**
+   * @experimental
+   * @description option to overwrite vite's config
+   */
+  unstable_viteConfig?: InlineConfig;
 }
 
 /**

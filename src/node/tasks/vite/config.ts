@@ -2,6 +2,7 @@
 import react from '@vitejs/plugin-react-swc';
 import { builtinModules } from 'node:module';
 import path from 'path';
+import { mergeConfig } from 'vite';
 
 import { resolveConfigProperty } from '../../core/config';
 
@@ -133,7 +134,7 @@ const resolveViteConfig = async (ctx: BuildContext, task: ViteBaseTask) => {
     plugins: [...basePlugins, ...plugins],
   } satisfies InlineConfig;
 
-  return config;
+  return mergeConfig(config, ctx.config.unstable_viteConfig ?? {});
 };
 
 export { resolveViteConfig };
