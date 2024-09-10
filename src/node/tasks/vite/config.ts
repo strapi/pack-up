@@ -52,6 +52,10 @@ const resolveViteConfig = async (ctx: BuildContext, task: ViteBaseTask) => {
       emptyOutDir: false,
       target: targets[runtime],
       outDir,
+      commonjsOptions: {
+        include: [/node_modules/, `${ctx.cwd}/**/*`],
+        extensions: ['.js', '.jsx', '.cjs'],
+      },
       lib: {
         entry: entries.map((e) => e.entry),
         formats: [format],
