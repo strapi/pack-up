@@ -7,8 +7,8 @@ import { createPackageFromTemplate } from './templates/create';
 import { defaultTemplate } from './templates/internal/default';
 import { loadTemplate } from './templates/load';
 
-import type { TemplateOrTemplateResolver } from './templates/types';
 import type { CommonCLIOptions } from '../types';
+import type { TemplateOrTemplateResolver } from './templates/types';
 
 export interface InitOptions extends CommonCLIOptions {
   cwd?: string;
