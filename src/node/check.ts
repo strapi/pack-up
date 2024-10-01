@@ -12,8 +12,8 @@ import { createLogger } from './core/logger';
 import { loadPkg, validatePkg } from './core/pkg';
 import { createBuildContext } from './createBuildContext';
 
-import type { Logger } from './core/logger';
 import type { CommonCLIOptions } from '../types';
+import type { Logger } from './core/logger';
 import type { BuildFailure, Format, Message } from 'esbuild';
 
 export interface CheckOptions extends CommonCLIOptions {
