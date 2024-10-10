@@ -14,7 +14,7 @@ permissions:
 jobs:
   release:
     name: Release
-    if: github.repository == 'strapi/strapi'
+    if: github.repository == 'strapi/pack-up'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
