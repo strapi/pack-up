@@ -112,10 +112,6 @@
     "lint-staged": "^15.2.10"
   },
   "packageManager": "pnpm@9.1.0",
-  "engines": {
-    "node": ">=18.0.0 <=22.x.x",
-    "npm": ">=6.0.0"
-  },
   "publishConfig": {
     "access": "public"
   }
