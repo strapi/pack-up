@@ -110,6 +110,7 @@ const watch = async (opts: WatchOptions) => {
 
       const validatedPkg = await validatePkg({
         pkg: rawPkg,
+        logger,
       }).catch((err) => {
         logger.error(err.message);
         process.exit(1);

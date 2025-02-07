@@ -10,7 +10,7 @@ const loggerMock = {
   error: jest.fn(),
 };
 
-describe.skip('pkg', () => {
+describe('pkg', () => {
   const tmpfolder = path.resolve(__dirname, '.tmp');
 
   afterEach(() => {
@@ -61,7 +61,11 @@ describe.skip('pkg', () => {
         version: '0.0.0',
       };
 
-      const validatedPkg = await validatePkg({ pkg });
+      const validatedPkg = await validatePkg({
+        pkg,
+        // @ts-expect-error logger is mocked
+        logger: loggerMock,
+      });
 
       expect(validatedPkg).toMatchInlineSnapshot(`
         {
@@ -77,6 +81,8 @@ describe.skip('pkg', () => {
           pkg: {
             version: '0.0.0',
           },
+          // @ts-expect-error logger is mocked
+          logger: loggerMock,
         })
       ).rejects.toThrowErrorMatchingInlineSnapshot(
         "\"'name' in 'package.json' is required as type '[35mstring[39m'\""
@@ -87,6 +93,8 @@ describe.skip('pkg', () => {
           pkg: {
             name: 'testing',
           },
+          // @ts-expect-error logger is mocked
+          logger: loggerMock,
         })
       ).rejects.toThrowErrorMatchingInlineSnapshot(
         "\"'version' in 'package.json' is required as type '[35mstring[39m'\""
@@ -100,14 +108,16 @@ describe.skip('pkg', () => {
             name: 'testing',
             version: 0,
           },
+          // @ts-expect-error logger is mocked
+          logger: loggerMock,
         })
       ).rejects.toThrowErrorMatchingInlineSnapshot(
         "\"'version' in 'package.json' must be of type '[35mstring[39m' (recieved '[35mnumber[39m')\""
       );
     });
 
-    it("should fail if the regex for a field doesn't match and call the error logger with the correct message", async () => {
-      expect(() =>
+    it.only("should warn if the regex for a field doesn't match and call the warning logger with the correct message", async () => {
+      await expect(
         validatePkg({
           pkg: {
             name: 'testing',
@@ -116,9 +126,13 @@ describe.skip('pkg', () => {
               apple: './apple.xyzx',
             },
           },
+          // @ts-expect-error logger is mocked
+          logger: loggerMock,
         })
-      ).rejects.toThrowErrorMatchingInlineSnapshot(
-        "\"'exports.apple' in 'package.json' must be of type '[35m/^\\.\\/.*\\.json$/[39m' (recieved the value '[35m./apple.xyzx[39m')\""
+      ).resolves.toBeTruthy();
+
+      expect(loggerMock.warn).toHaveBeenCalledWith(
+        'Warning: Value "./apple.xyzx" does not match the required regex /^\\.\\/.*\\.json$/'
       );
 
       expect(() =>
@@ -128,6 +142,8 @@ describe.skip('pkg', () => {
             version: '0.0.0',
             type: 'something',
           },
+          // @ts-expect-error logger is mocked
+          logger: loggerMock,
         })
       ).rejects.toThrowErrorMatchingInlineSnapshot(
         '"type must be one of the following values: commonjs, module"'
@@ -142,28 +158,100 @@ describe.skip('pkg', () => {
             version: '0.0.0',
             exports: 'hello',
           },
+          // @ts-expect-error logger is mocked
+          logger: loggerMock,
         })
       ).rejects.toThrowErrorMatchingInlineSnapshot(
         "\"'exports' in 'package.json' must be of type '[35mobject[39m' (recieved '[35mstring[39m')\""
       );
+    });
 
-      expect(() =>
+    it('should pass validation for valid exports with allowed keys', async () => {
+      const pkg = {
+        name: 'testing',
+        version: '0.0.0',
+        exports: {
+          './feature': {
+            source: './src/feature.js',
+            default: './dist/feature.js',
+          },
+        },
+      };
+
+      const validatedPkg = await validatePkg({
+        pkg,
+        // @ts-expect-error logger is mocked
+        logger: loggerMock,
+      });
+
+      expect(validatedPkg.exports).toEqual(pkg.exports);
+    });
+
+    it('should warn but not fail for unknown keys in exports', async () => {
+      const pkg = {
+        name: 'testing',
+        version: '0.0.0',
+        exports: {
+          './feature': {
+            source: './src/feature.js',
+            default: './dist/feature.js',
+            unknownKey: 'value',
+          },
+        },
+      };
+
+      const validatedPkg = await validatePkg({
+        pkg,
+        // @ts-expect-error logger is mocked
+        logger: loggerMock,
+      });
+
+      expect(loggerMock.warn).toHaveBeenCalledWith(
+        expect.stringContaining('Warning: Unknown keys in exports: unknownKey')
+      );
+
+      expect(validatedPkg.exports).toEqual(pkg.exports);
+    });
+
+    it('should fail if required fields in exports are missing', async () => {
+      await expect(
         validatePkg({
           pkg: {
             name: 'testing',
             version: '0.0.0',
             exports: {
-              './package.json': './package.json',
-              './admin': {
-                import: './admin/index.js',
-                something: 'xyz',
+              './feature': {
+                default: './dist/feature.js',
               },
             },
           },
+          // @ts-expect-error logger is mocked
+          logger: loggerMock,
         })
       ).rejects.toThrowErrorMatchingInlineSnapshot(
-        "\"'exports[\"./admin\"]' in 'package.json' contains the unknown key [35msomething[39m, for compatability only the following keys are allowed: [35m['types', 'source', 'import', 'require', 'default'][39m\""
+        '"The schema does not contain the path: exports["./feature"].source. (failed at: .exports which is a type: "object")"'
       );
+    });
+
+    it('should pass if optional fields in exports are omitted', async () => {
+      const pkg = {
+        name: 'testing',
+        version: '0.0.0',
+        exports: {
+          './feature': {
+            source: './src/feature.js',
+            default: './dist/feature.js',
+          },
+        },
+      };
+
+      const validatedPkg = await validatePkg({
+        pkg,
+        // @ts-expect-error logger is mocked
+        logger: loggerMock,
+      });
+
+      expect(validatedPkg.exports).toEqual(pkg.exports);
     });
   });
 });

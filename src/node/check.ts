@@ -39,6 +39,7 @@ export const check = async (opts: CheckOptions = {}) => {
 
   const validatedPkg = await validatePkg({
     pkg: rawPkg,
+    logger,
   }).catch((err) => {
     packageJsonLoader.fail();
     logger.error(err.message);

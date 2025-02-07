@@ -71,6 +71,7 @@ const build = async (opts: BuildOptions = {}) => {
 
   const validatedPkg = await validatePkg({
     pkg: rawPkg,
+    logger,
   }).catch((err) => {
     packageJsonLoader.fail();
 

@@ -29,114 +29,153 @@ const record = (value: unknown) =>
  * The schema for the package.json that we expect,
  * currently pretty loose.
  */
-const packageJsonSchema = yup.object({
-  name: yup.string().required(),
-  version: yup.string().required(),
-  description: yup.string().optional(),
-  author: yup.lazy((value) => {
-    if (typeof value === 'object') {
-      return yup
-        .object({
-          name: yup.string().required(),
-          email: yup.string().optional(),
-          url: yup.string().optional(),
-        })
-        .optional();
-    }
 
-    return yup.string().optional();
-  }),
-  keywords: yup.array(yup.string()).optional(),
-  type: yup.mixed().oneOf(['commonjs', 'module']).optional(),
-  license: yup.string().optional(),
-  repository: yup
-    .object({
-      type: yup.string().required(),
-      url: yup.string().required(),
-    })
-    .optional(),
-  bugs: yup
-    .object({
-      url: yup.string().required(),
-    })
-    .optional(),
-  homepage: yup.string().optional(),
-  // TODO: be nice just to make this either a string or a record of strings.
-  bin: yup.lazy((value) => {
-    if (typeof value === 'object') {
-      return record(value);
-    }
+const createPackageJsonSchema = (logger: Logger) => {
+  /**
+   * The schema for the package.json that we expect,
+   * currently pretty loose.
+   */
+  const packageJsonSchema = yup.object({
+    name: yup.string().required(),
+    version: yup.string().required(),
+    description: yup.string().optional(),
+    author: yup.lazy((value) => {
+      if (typeof value === 'object') {
+        return yup
+          .object({
+            name: yup.string().required(),
+            email: yup.string().optional(),
+            url: yup.string().optional(),
+          })
+          .optional();
+      }
 
-    return yup.string().optional();
-  }),
-  // TODO: be nice just to make this either a string or a record of strings.
-  browser: yup.lazy((value) => {
-    if (typeof value === 'object') {
-      return record(value);
-    }
+      return yup.string().optional();
+    }),
+    keywords: yup.array(yup.string()).optional(),
+    type: yup.mixed().oneOf(['commonjs', 'module']).optional(),
+    license: yup.string().optional(),
+    repository: yup
+      .object({
+        type: yup.string().required(),
+        url: yup.string().required(),
+      })
+      .optional(),
+    bugs: yup
+      .object({
+        url: yup.string().required(),
+      })
+      .optional(),
+    homepage: yup.string().optional(),
+    // TODO: be nice just to make this either a string or a record of strings.
+    bin: yup.lazy((value) => {
+      if (typeof value === 'object') {
+        return record(value);
+      }
 
-    return yup.string().optional();
-  }),
-  main: yup.string().optional(),
-  module: yup.string().optional(),
-  source: yup.string().optional(),
-  types: yup.string().optional(),
-  exports: yup.lazy((value) =>
-    yup
-      .object(
-        typeof value === 'object'
-          ? Object.entries(value).reduce(
-              (acc, [key, v]) => {
-                if (typeof v === 'object') {
-                  // @ts-expect-error yup is not typed correctly
-                  acc[key] = yup
-                    .object({
-                      types: yup.string().optional(),
-                      source: yup.string().required(),
-                      browser: yup
-                        .object({
-                          source: yup.string().required(),
-                          import: yup.string().optional(),
-                          require: yup.string().optional(),
-                        })
-                        .optional(),
-                      node: yup
-                        .object({
-                          source: yup.string().optional(),
-                          module: yup.string().optional(),
-                          import: yup.string().optional(),
-                          require: yup.string().optional(),
-                        })
-                        .optional(),
-                      module: yup.string().optional(),
-                      import: yup.string().optional(),
-                      require: yup.string().optional(),
-                      default: yup.string().required(),
-                    })
-                    .noUnknown(true);
-                } else {
-                  acc[key] = yup
-                    .string()
-                    .matches(/^\.\/.*\.json$/)
-                    .required();
-                }
+      return yup.string().optional();
+    }),
+    // TODO: be nice just to make this either a string or a record of strings.
+    browser: yup.lazy((value) => {
+      if (typeof value === 'object') {
+        return record(value);
+      }
 
-                return acc;
-              },
-              {} as Record<string, yup.SchemaOf<string> | yup.SchemaOf<Export>>
-            )
-          : undefined
-      )
-      .optional()
-  ),
-  files: yup.array(yup.string()).optional(),
-  scripts: yup.lazy(record),
-  dependencies: yup.lazy(record),
-  devDependencies: yup.lazy(record),
-  peerDependencies: yup.lazy(record),
-  engines: yup.lazy(record),
-  browserslist: yup.array(yup.string().required()).optional(),
-});
+      return yup.string().optional();
+    }),
+    main: yup.string().optional(),
+    module: yup.string().optional(),
+    source: yup.string().optional(),
+    types: yup.string().optional(),
+    exports: yup.lazy((value) =>
+      yup
+        .object(
+          typeof value === 'object'
+            ? Object.entries(value).reduce(
+                (acc, [key, v]) => {
+                  if (typeof v === 'object') {
+                    // @ts-expect-error yup is not typed correctly
+                    acc[key] = yup
+                      .object({
+                        types: yup.string().optional(),
+                        source: yup.string().required(),
+                        browser: yup
+                          .object({
+                            source: yup.string().required(),
+                            import: yup.string().optional(),
+                            require: yup.string().optional(),
+                          })
+                          .optional(),
+                        node: yup
+                          .object({
+                            source: yup.string().optional(),
+                            module: yup.string().optional(),
+                            import: yup.string().optional(),
+                            require: yup.string().optional(),
+                          })
+                          .optional(),
+                        module: yup.string().optional(),
+                        import: yup.string().optional(),
+                        require: yup.string().optional(),
+                        default: yup.string().required(),
+                      })
+                      .test('warn-on-unknown-keys', 'Unknown keys in exports', (obj) => {
+                        const knownKeys = [
+                          'types',
+                          'source',
+                          'browser',
+                          'node',
+                          'module',
+                          'import',
+                          'require',
+                          'default',
+                        ];
+                        const unknownKeys = Object.keys(obj).filter((k) => !knownKeys.includes(k));
+                        if (unknownKeys.length > 0) {
+                          logger.warn(
+                            `Warning: Unknown keys in exports: ${unknownKeys.join(', ')}`
+                          );
+                        }
+
+                        return true;
+                      });
+                  } else {
+                    acc[key] = yup
+                      .string()
+                      .test(
+                        'warn-regex',
+                        'Value does not match the required regex',
+                        (nonObjectValue) => {
+                          const regex = /^\.\/.*\.json$/;
+                          if (nonObjectValue && !regex.test(nonObjectValue)) {
+                            logger.warn(
+                              `Warning: Value "${nonObjectValue}" does not match the required regex ${regex}`
+                            );
+                          }
+                          return true;
+                        }
+                      )
+                      .required();
+                  }
+                  return acc;
+                },
+                {} as Record<string, yup.SchemaOf<string> | yup.SchemaOf<Export>>
+              )
+            : undefined
+        )
+        .optional()
+    ),
+    files: yup.array(yup.string()).optional(),
+    scripts: yup.lazy(record),
+    dependencies: yup.lazy(record),
+    devDependencies: yup.lazy(record),
+    peerDependencies: yup.lazy(record),
+    engines: yup.lazy(record),
+    browserslist: yup.array(yup.string().required()).optional(),
+  });
+
+  return packageJsonSchema;
+};
 
 /**
  * @description being a task to load the package.json starting from the current working directory
@@ -159,7 +198,8 @@ const loadPkg = async ({ cwd, logger }: { cwd: string; logger: Logger }): Promis
   return pkg;
 };
 
-interface PackageJson extends Omit<yup.Asserts<typeof packageJsonSchema>, 'type'> {
+interface PackageJson
+  extends Omit<yup.Asserts<ReturnType<typeof createPackageJsonSchema>>, 'type'> {
   type?: 'commonjs' | 'module';
 }
 
@@ -167,7 +207,14 @@ interface PackageJson extends Omit<yup.Asserts<typeof packageJsonSchema>, 'type'
  * @description validate the package.json against a standardised schema using `yup`.
  * If the validation fails, the process will throw with an appropriate error message.
  */
-const validatePkg = async ({ pkg }: { pkg: object }): Promise<PackageJson> => {
+const validatePkg = async ({
+  pkg,
+  logger,
+}: {
+  pkg: object;
+  logger: Logger;
+}): Promise<PackageJson> => {
+  const packageJsonSchema = createPackageJsonSchema(logger);
   try {
     const validatedPkg = await packageJsonSchema.validate(pkg, {
       strict: true,
@@ -192,21 +239,6 @@ const validatePkg = async ({ pkg }: { pkg: object }): Promise<PackageJson> => {
               `'${err.path}' in 'package.json' must be of type '${chalk.magenta(
                 err.params.regex
               )}' (recieved the value '${chalk.magenta(err.params.value)}')`
-            );
-          }
-          break;
-        /**
-         * This will only be thrown if there are keys in the export map
-         * that we don't expect so we can therefore make some assumptions
-         */
-        case 'noUnknown':
-          if (err.path && err.params && 'unknown' in err.params) {
-            throw new Error(
-              `'${err.path}' in 'package.json' contains the unknown key ${chalk.magenta(
-                err.params.unknown
-              )}, for compatability only the following keys are allowed: ${chalk.magenta(
-                "['types', 'source', 'import', 'require', 'default']"
-              )}`
             );
           }
           break;
