@@ -25,6 +25,7 @@ jobs:
         with:
           cache: pnpm
           node-version: lts/*
+      - run: pnpm install -g corepack@latest
       - run: corepack enable && pnpm --version
       - run: pnpm install
       - run: pnpm build
