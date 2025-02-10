@@ -116,7 +116,7 @@ describe('pkg', () => {
       );
     });
 
-    it.only("should warn if the regex for a field doesn't match and call the warning logger with the correct message", async () => {
+    it("should warn if the regex for a field doesn't match and call the warning logger with the correct message", async () => {
       await expect(
         validatePkg({
           pkg: {

@@ -26,16 +26,32 @@ const record = (value: unknown) =>
     .optional();
 
 /**
+ * @description being a task to load the package.json starting from the current working directory
+ * using a shallow find for the package.json  and `fs` to read the file. If no package.json is found,
+ * the process will throw with an appropriate error message.
+ */
+const loadPkg = async ({ cwd, logger }: { cwd: string; logger: Logger }): Promise<object> => {
+  const pkgPath = await pkgUp({ cwd });
+
+  if (!pkgPath) {
+    throw new Error('Could not find a package.json in the current directory');
+  }
+
+  const buffer = await fs.readFile(pkgPath);
+
+  const pkg = JSON.parse(buffer.toString());
+
+  logger.debug('Loaded package.json:', os.EOL, pkg);
+
+  return pkg;
+};
+
+/**
  * The schema for the package.json that we expect,
  * currently pretty loose.
  */
-
-const createPackageJsonSchema = (logger: Logger) => {
-  /**
-   * The schema for the package.json that we expect,
-   * currently pretty loose.
-   */
-  const packageJsonSchema = yup.object({
+const createPackageJsonSchema = (logger: Logger) =>
+  yup.object({
     name: yup.string().required(),
     version: yup.string().required(),
     description: yup.string().optional(),
@@ -174,30 +190,6 @@ const createPackageJsonSchema = (logger: Logger) => {
     browserslist: yup.array(yup.string().required()).optional(),
   });
 
-  return packageJsonSchema;
-};
-
-/**
- * @description being a task to load the package.json starting from the current working directory
- * using a shallow find for the package.json  and `fs` to read the file. If no package.json is found,
- * the process will throw with an appropriate error message.
- */
-const loadPkg = async ({ cwd, logger }: { cwd: string; logger: Logger }): Promise<object> => {
-  const pkgPath = await pkgUp({ cwd });
-
-  if (!pkgPath) {
-    throw new Error('Could not find a package.json in the current directory');
-  }
-
-  const buffer = await fs.readFile(pkgPath);
-
-  const pkg = JSON.parse(buffer.toString());
-
-  logger.debug('Loaded package.json:', os.EOL, pkg);
-
-  return pkg;
-};
-
 interface PackageJson
   extends Omit<yup.Asserts<ReturnType<typeof createPackageJsonSchema>>, 'type'> {
   type?: 'commonjs' | 'module';
@@ -215,6 +207,7 @@ const validatePkg = async ({
   logger: Logger;
 }): Promise<PackageJson> => {
   const packageJsonSchema = createPackageJsonSchema(logger);
+
   try {
     const validatedPkg = await packageJsonSchema.validate(pkg, {
       strict: true,
