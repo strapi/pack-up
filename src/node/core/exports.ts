@@ -310,8 +310,8 @@ const parseExports = ({ extMap, pkg }: { extMap: ExtMap; pkg: PackageJson }) => 
 
           extraExports.push(extraExport);
         }
-      } else {
-        errors.push('package.json: exports must be an object');
+      } else if (!['string', 'object'].includes(typeof entry)) {
+        errors.push('package.json: exports must be an object or string');
       }
     });
   }
