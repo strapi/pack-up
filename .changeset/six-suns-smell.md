@@ -1,0 +1,5 @@
+---
+
+---
+
+chore: update vite dependency
