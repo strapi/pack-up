@@ -30,7 +30,7 @@ const exec = (
   options: child_process.ExecOptions = {}
 ): Promise<{ stdout: string; stderr: string }> => {
   return new Promise((resolve, reject) => {
-    child_process.exec(command, options, (err, stdout, stderr) => {
+    child_process.exec(command, { ...options, encoding: 'utf8' }, (err, stdout, stderr) => {
       if (err) {
         const execErr = new ExecError(err.message, stdout, stderr);
 
